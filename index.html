@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Система ежедневного контроля · Маркетплейсы v2.0</title>
+<style>
+  :root {
+    --primary: #1e3a8a;
+    --primary-light: #3b5bdb;
+    --accent: #0ea5a4;
+    --warning: #f59e0b;
+    --danger: #dc2626;
+    --success: #16a34a;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-muted: #64748b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 16px;
+  }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* Header */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    padding: 12px 0;
+  }
+  .topbar-inner { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--primary); }
+  .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .nav { display: flex; gap: 20px; font-size: 14px; }
+  .nav a { color: var(--text-muted); text-decoration: none; }
+  .nav a:hover { color: var(--primary); }
+  @media (max-width: 720px) { .nav { display: none; } }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    padding: 72px 0 64px;
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 20px;
+    letter-spacing: 0.3px;
+  }
+  .badge.status { background: var(--warning); color: #1e293b; }
+  .hero h1 {
+    font-size: 44px; line-height: 1.15; font-weight: 800;
+    margin-bottom: 20px; letter-spacing: -0.5px;
+  }
+  .hero p.lead {
+    font-size: 19px; opacity: 0.95; max-width: 720px; margin-bottom: 32px;
+  }
+  .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 14px 24px; border-radius: 10px;
+    font-weight: 600; text-decoration: none; font-size: 15px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary { background: white; color: var(--primary); }
+  .btn-secondary {
+    background: rgba(255,255,255,0.1); color: white;
+    border: 1px solid rgba(255,255,255,0.35);
+  }
+  .meta-row {
+    display: flex; gap: 32px; flex-wrap: wrap; margin-top: 40px;
+    padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.2);
+  }
+  .meta-item { font-size: 14px; opacity: 0.85; }
+  .meta-item strong { display: block; font-size: 24px; opacity: 1; font-weight: 700; }
+
+  /* Sections */
+  section { padding: 64px 0; }
+  section.alt { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .section-label {
+    font-size: 13px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;
+  }
+  h2 {
+    font-size: 32px; font-weight: 800; color: var(--primary);
+    margin-bottom: 16px; letter-spacing: -0.3px;
+  }
+  .section-intro { font-size: 17px; color: var(--text-muted); max-width: 780px; margin-bottom: 40px; }
+
+  /* Cards grid */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 860px) { .grid-3 { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 24px;
+  }
+  .card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; color: var(--primary); }
+  .card p { color: var(--text-muted); font-size: 15px; }
+  .card-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(14,165,164,0.12); color: var(--accent);
+    font-weight: 800; font-size: 16px; margin-bottom: 14px;
+  }
+
+  /* Problem list */
+  .problem-list { display: grid; gap: 14px; max-width: 820px; }
+  .problem-item {
+    display: flex; gap: 16px; padding: 18px 20px;
+    background: var(--surface); border-left: 3px solid var(--danger);
+    border-radius: 8px; font-size: 15px;
+  }
+  .problem-item .icon { color: var(--danger); font-weight: 800; flex-shrink: 0; }
+
+  /* Roles table */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%; border-collapse: collapse; background: var(--surface);
+    border-radius: 12px; overflow: hidden; font-size: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: #f1f5f9; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+  tr:last-child td { border-bottom: none; }
+  td code {
+    background: #f1f5f9; padding: 2px 6px; border-radius: 4px;
+    font-size: 13px; font-family: "SF Mono", Consolas, monospace;
+  }
+
+  /* 11 checks */
+  .checks-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+  }
+  @media (max-width: 720px) { .checks-grid { grid-template-columns: 1fr; } }
+  .check-item {
+    display: flex; gap: 14px; padding: 14px 16px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    font-size: 14.5px;
+  }
+  .check-num {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 8px;
+    background: var(--primary); color: white; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+
+  /* Timeline */
+  .timeline { display: flex; flex-direction: column; gap: 0; max-width: 820px; margin: 0 auto; }
+  .timeline-item { display: flex; gap: 20px; position: relative; padding-bottom: 28px; }
+  .timeline-item:last-child { padding-bottom: 0; }
+  .timeline-item::before {
+    content: ''; position: absolute; left: 15px; top: 34px; bottom: 0;
+    width: 2px; background: var(--border);
+  }
+  .timeline-item:last-child::before { display: none; }
+  .timeline-day {
+    flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent); color: white; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; z-index: 1;
+  }
+  .timeline-body h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--primary); }
+  .timeline-body p { font-size: 14.5px; color: var(--text-muted); }
+
+  /* Action block */
+  .action-block {
+    background: linear-gradient(135deg, #f0fdfa 0%, #ecfeff 100%);
+    border: 1px solid #99f6e4; border-radius: 16px; padding: 32px;
+  }
+  .action-block h3 { color: var(--primary); font-size: 22px; margin-bottom: 20px; }
+  .action-list { list-style: none; display: grid; gap: 14px; }
+  .action-list li {
+    display: flex; gap: 12px; align-items: flex-start; font-size: 15.5px;
+  }
+  .action-list li::before {
+    content: '✓'; flex-shrink: 0; width: 22px; height: 22px;
+    border-radius: 50%; background: var(--accent); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; margin-top: 2px;
+  }
+
+  /* Links grid */
+  .links-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @media (max-width: 720px) { .links-grid { grid-template-columns: 1fr; } }
+  .link-card {
+    display: block; padding: 24px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 14px;
+    text-decoration: none; color: var(--text);
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  }
+  .link-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+  .link-card h4 { color: var(--primary); font-size: 17px; margin-bottom: 6px; }
+  .link-card p { color: var(--text-muted); font-size: 14px; }
+  .link-card .arrow { display: inline-block; color: var(--accent); font-weight: 700; margin-top: 10px; }
+
+  /* Footer */
+  footer {
+    background: var(--primary); color: white;
+    padding: 40px 0; font-size: 14px;
+  }
+  .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+  .footer-inner p { opacity: 0.85; }
+  .footer-inner a { color: #a5f3fc; text-decoration: none; }
+  .footer-inner a:hover { text-decoration: underline; }
+
+  /* Progress banner */
+  .progress-banner {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: #fef3c7; color: #78350f; padding: 10px 16px;
+    border-radius: 10px; font-size: 14px; font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .progress-banner .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--warning);
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="container topbar-inner">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span>Ежедневный контроль · Маркетплейсы</span>
+    </div>
+    <nav class="nav">
+      <a href="#why">Проблема</a>
+      <a href="#solution">Решение</a>
+      <a href="#roles">Роли</a>
+      <a href="#checks">11 проверок</a>
+      <a href="#timeline">Запуск</a>
+      <a href="#action">Что нужно</a>
+      <a href="#links">Материалы</a>
+    </nav>
+  </div>
+</div>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="container">
+    <div class="badge status">
+      <span class="dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#78350f;margin-right:8px;vertical-align:middle;"></span>
+      Версия 2.0 · На обсуждении с командой · до 28.11.2026
+    </div>
+    <h1>Система ежедневного контроля операций на маркетплейсах</h1>
+    <p class="lead">
+      3 юридических лица. 8 кабинетов. 3 площадки. Единый регламент,
+      принудительные ежедневные сверки и автоматический контроль пропусков —
+      чтобы ни один заказ, возврат или карантин цен не «выпал» из поля зрения.
+    </p>
+    <div class="hero-cta">
+      <a href="#links" class="btn btn-primary">Перейти к регламенту →</a>
+      <a href="#action" class="btn btn-secondary">Что нужно от меня</a>
+    </div>
+    <div class="meta-row">
+      <div class="meta-item"><strong>3</strong> юрлица</div>
+      <div class="meta-item"><strong>8</strong> кабинетов</div>
+      <div class="meta-item"><strong>11</strong> ежедневных проверок</div>
+      <div class="meta-item"><strong>4</strong> уровня эскалации</div>
+      <div class="meta-item"><strong>7</strong> дней до запуска</div>
+    </div>
+  </div>
+</header>
+
+<!-- Why -->
+<section id="why">
+  <div class="container">
+    <div class="section-label">Почему это важно</div>
+    <h2>Что происходит сейчас</h2>
+    <p class="section-intro">
+      При 8 кабинетах и 3 юрлицах традиционные методы — память и периодические
+      сверки — не работают. Проблемы выявляются через недели, когда штраф уже
+      выставлен или позиции в выдаче просели.
+    </p>
+    <div class="problem-list">
+      <div class="problem-item">
+        <span class="icon">!</span>
+        <div>Заказы в ЛК и в учётной системе LF расходятся — расхождения обнаруживаются по факту штрафа.</div>
+      </div>
+      <div class="problem-item">
+        <span class="icon">!</span>
+        <div>Возвраты «в пути» зависают на 60+ дней по РФ и 150+ дней по СНГ — претензии на возмещение не подаются.</div>
+      </div>
+      <div class="problem-item">
+        <span class="icon">!</span>
+        <div>Возвраты, прибывшие в ПВЗ, лежат без вывоза. Утилизация не организуется вовремя.</div>
+      </div>
+      <div class="problem-item">
+        <span class="icon">!</span>
+        <div>Всплески по индексу ошибок и статьям расходов замечаются на еженедельном разборе — слишком поздно.</div>
+      </div>
+      <div class="problem-item">
+        <span class="icon">!</span>
+        <div>Карантин цен и выпадение карточек из продажи не фиксируются — теряем выручку без причины.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Solution -->
+<section id="solution" class="alt">
+  <div class="container">
+    <div class="section-label">Решение</div>
+    <h2>3 слоя системы</h2>
+    <p class="section-intro">
+      Единый регламент (что делать), формы ввода (как фиксировать) и дашборд (где видеть).
+      Каждый слой решает свою задачу и не дублирует другой.
+    </p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-num">1</div>
+        <h3>Регламент</h3>
+        <p>Google Docs / Яндекс Документы. Единый эталон правил. Любые правки — через комментарии и новую версию, не в мессенджерах.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">2</div>
+        <h3>Формы ввода</h3>
+        <p>Google Forms / Яндекс Формы. Валидация не даёт отправить отчёт с пустыми полями. Авторство и время фиксируются автоматически.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">3</div>
+        <h3>Дашборд</h3>
+        <p>Google Sheets. Светофор, формулы, автоматическое выделение «красных зон». Пропуск чек-листа виден сразу, а не через неделю.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Roles -->
+<section id="roles">
+  <div class="container">
+    <div class="section-label">Организационная структура</div>
+    <h2>Роли и распределение кабинетов</h2>
+    <p class="section-intro">
+      Матричное распределение снижает когнитивную нагрузку: каждый менеджер ведёт
+      одну-две площадки, а не все восемь кабинетов сразу.
+    </p>
+
+    <div class="table-wrap" style="margin-bottom:32px;">
+      <table>
+        <thead>
+          <tr><th>Роль</th><th>Зона ответственности</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Руководитель</strong></td><td>Утверждение регламента, эскалация L3–L4, мониторинг ФЗ-289 и тарифов</td></tr>
+          <tr><td><strong>Старший менеджер</strong></td><td>Диспетчер ежедневного контроля, сводка до 19:00, weekly-разбор, резерв по всем кабинетам</td></tr>
+          <tr><td><strong>М1</strong></td><td>Яндекс.Маркет FBS (A_O, TTA) — 2 кабинета</td></tr>
+          <tr><td><strong>М2</strong></td><td>Ozon FBS (A_O, TTA, IGS) — 3 кабинета</td></tr>
+          <tr><td><strong>М3</strong></td><td>Wildberries FBS + A_O-WB-FBW + IGS-OZ-FBO — 3 кабинета</td></tr>
+          <tr><td><strong>Старший контент-менеджер</strong></td><td>Категории, сертификаты, коды маркировки, SLA отзывов, качество карточек</td></tr>
+          <tr><td><strong>Линейные контент-менеджеры</strong></td><td>По 1–2 категории во всех кабинетах: карточки, отзывы, цены</td></tr>
+          <tr><td><strong>ИТ-менеджер</strong></td><td>API-ключи, MFA, права, интеграции, выгрузки, дашборды</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>ID кабинета</th><th>Юрлицо</th><th>Площадка</th><th>Схема</th><th>Основной</th><th>Резерв</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>A_O-YM-FBS</code></td><td>A_O</td><td>Яндекс Маркет</td><td>FBS</td><td>М1</td><td>М2</td></tr>
+          <tr><td><code>TTA-YM-FBS</code></td><td>TTA</td><td>Яндекс Маркет</td><td>FBS</td><td>М1</td><td>М2</td></tr>
+          <tr><td><code>A_O-OZ-FBS</code></td><td>A_O</td><td>Ozon</td><td>FBS</td><td>М2</td><td>М1</td></tr>
+          <tr><td><code>TTA-OZ-FBS</code></td><td>TTA</td><td>Ozon</td><td>FBS</td><td>М2</td><td>М1</td></tr>
+          <tr><td><code>IGS-OZ-FBS</code></td><td>IGS</td><td>Ozon</td><td>FBS</td><td>М2</td><td>М1</td></tr>
+          <tr><td><code>A_O-WB-FBS</code></td><td>A_O</td><td>Wildberries</td><td>FBS</td><td>М3</td><td>Ст. менеджер</td></tr>
+          <tr><td><code>A_O-WB-FBW</code></td><td>A_O</td><td>Wildberries</td><td>FBW</td><td>М3</td><td>Ст. менеджер</td></tr>
+          <tr><td><code>IGS-OZ-FBO</code></td><td>IGS</td><td>Ozon</td><td>FBO</td><td>М3</td><td>Ст. менеджер</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 11 checks -->
+<section id="checks" class="alt">
+  <div class="container">
+    <div class="section-label">Ежедневный цикл</div>
+    <h2>11 обязательных проверок линейного менеджера</h2>
+    <p class="section-intro">
+      Выполняются каждый рабочий день по каждому закреплённому FBS-кабинету.
+      Фиксируются только через форму Ф1. Если по пункту «Отклонение» — обязателен
+      номер тикета, иначе форма не отправится.
+    </p>
+    <div class="checks-grid">
+      <div class="check-item"><span class="check-num">1</span><div>Сверка заказов: всего в ЛК / загружено в LF (расхождение ≤ 0,1%)</div></div>
+      <div class="check-item"><span class="check-num">2</span><div>Отгрузка: «отгружено» в LF → статус «доставляется» в ЛК</div></div>
+      <div class="check-item"><span class="check-num">3</span><div>Возвраты «в пути»: &gt; 60 дней РФ / &gt; 150 дней СНГ — тикет на возмещение</div></div>
+      <div class="check-item"><span class="check-num">4</span><div>Полученные возвраты: ЛК vs приёмка отдела рекламации в LF</div></div>
+      <div class="check-item"><span class="check-num">5</span><div>Утилизация: кандидаты обработаны, вывоз или тикет на возмещение</div></div>
+      <div class="check-item"><span class="check-num">6</span><div>Возвраты в ПВЗ: вывоз организован, пропуск/машина</div></div>
+      <div class="check-item"><span class="check-num">7</span><div>Заявки на возврат от покупателей: ответ дан, при необходимости — списание</div></div>
+      <div class="check-item"><span class="check-num">8</span><div>Индекс ошибок: причины разобраны, при всплеске — эскалация L3</div></div>
+      <div class="check-item"><span class="check-num">9</span><div>Экономика магазина: всплески по статьям расходов выявлены</div></div>
+      <div class="check-item"><span class="check-num">10</span><div>Товары в продаже: «всего» vs «в продаже», причины недоступности</div></div>
+      <div class="check-item"><span class="check-num">11</span><div>Карантин цен: блокировки есть/нет, все разобраны</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Timeline -->
+<section id="timeline">
+  <div class="container">
+    <div class="section-label">План запуска</div>
+    <h2>7 дней до полного запуска</h2>
+    <p class="section-intro">
+      Пилот идёт на менеджере М1 (Яндекс.Маркет, 2 кабинета). Если данные не пришли
+      через форму — это фиксируется как пропуск и разбирается. Ручной ввод в таблицу
+      запрещён.
+    </p>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-day">1</div>
+        <div class="timeline-body">
+          <h4>Финализация регламента и справочника кабинетов</h4>
+          <p>Утверждение матрицы кабинетов, создание листа Master Data.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-day">2</div>
+        <div class="timeline-body">
+          <h4>Сборка таблицы и форм</h4>
+          <p>Google Sheets (4 вкладки), формы Ф1–Ф5, настройка валидации и обязательных полей.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-day">3</div>
+        <div class="timeline-body">
+          <h4>Тест ИТ-менеджером</h4>
+          <p>MFA, доступы, права, выгрузки, корректность формул дашборда.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-day">4</div>
+        <div class="timeline-body">
+          <h4>Инструктаж команды</h4>
+          <p>30 минут: регламент, форма, журнал. Старший менеджер показывает, как он проверяет журнал.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-day">5–6</div>
+        <div class="timeline-body">
+          <h4>Пилот на М1 (Яндекс FBS, 2 кабинета)</h4>
+          <p>Только форма. Ручной ввод в таблицу запрещён — пропуски фиксируются как есть.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-day">7</div>
+        <div class="timeline-body">
+          <h4>Разбор пилота и запуск на всех</h4>
+          <p>5–7 правок, утверждение v2.1, старт ежедневного цикла на всех менеджерах.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Action -->
+<section id="action" class="alt">
+  <div class="container">
+    <div class="action-block">
+      <h3>Что нужно от команды</h3>
+      <ul class="action-list">
+        <li>Прочитать регламент v2.0 и оставить комментарии к спорным пунктам до <strong>28.11.2026</strong>.</li>
+        <li>Предложение оформлять в формате: <em>что меняем → почему → как это проверить</em>.</li>
+        <li>Согласовать пороговые значения из Приложения В: 0,1%, 60/150 дней, что считается «всплеском», целевое «в продаже».</li>
+        <li>Подтвердить распределение кабинетов или предложить альтернативу до начала пилота.</li>
+        <li>ИТ-менеджеру: проверить готовность всех 8 кабинетов к пилоту (MFA, доступы, выгрузки).</li>
+        <li>На инструктаже (день 4) присутствовать всем, кто будет заполнять формы.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Links -->
+<section id="links">
+  <div class="container">
+    <div class="section-label">Материалы для работы</div>
+    <h2>Ссылки</h2>
+    <p class="section-intro">
+      Четыре точки входа: регламент, формы, дашборд и реестр. Всё остальное
+      находится из этих ссылок.
+    </p>
+    <div class="links-grid">
+      <a href="[ВСТАВЬТЕ ССЫЛКУ НА GOOGLE DOC]" target="_blank" class="link-card">
+        <h4>Регламент v2.0 (полная версия)</h4>
+        <p>Единый документ: роли, 11 проверок, эскалация, формы, план запуска. Доступ на комментирование.</p>
+        <span class="arrow">Открыть →</span>
+      </a>
+      <a href="[ВСТАВЬТЕ ССЫЛКУ НА ФОРМЫ]" target="_blank" class="link-card">
+        <h4>Формы Ф1–Ф5</h4>
+        <p>Ежедневный чек-лист FBS, поставка/приёмка, еженедельное хранение, реестр расхождений, закрытие.</p>
+        <span class="arrow">Открыть →</span>
+      </a>
+      <a href="[ВСТАВЬТЕ ССЫЛКУ НА GOOGLE SHEETS]" target="_blank" class="link-card">
+        <h4>Таблица и дашборд</h4>
+        <p>Кабинеты, журнал чек-листов, реестр расхождений, светофор. Просмотр для всех, редактирование — у старшего менеджера.</p>
+        <span class="arrow">Открыть →</span>
+      </a>
+      <a href="[ВСТАВЬТЕ ССЫЛКУ НА КАЛЕНДАРЬ ИЗМЕНЕНИЙ]" target="_blank" class="link-card">
+        <h4>Календарь изменений требований</h4>
+        <p>Мониторинг ФЗ-289, тарифов, обновлений оферты и новостей площадок. Обновляется по пятницам.</p>
+        <span class="arrow">Открыть →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container footer-inner">
+    <p>
+      <strong>Версия 2.0</strong> · 25.11.2026 · Владелец: руководитель подразделения ·
+      Передача старшему менеджеру после критериев успеха
+    </p>
+    <p>
+      Вопросы — <a href="mailto:[ваша почта]">[ваша почта]</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
